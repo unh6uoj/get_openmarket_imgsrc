@@ -41,16 +41,28 @@ if response.status_code == 200:
     # 이렇게 하면 안되는데 일단 이렇게 함
     time.sleep(5)
 
-    lis = driver.find_element_by_xpath(
-        '//*[@id="content"]/div/div[2]/div[1]/ul').find_elements_by_tag_name('li')
-
     # 썸네일 가져오기
     thumbnailes = []
-    for li in lis:
-        li.click()
+    try:
+        lis = driver.find_element_by_xpath(
+            '//*[@id="content"]/div/div[2]/div[1]/ul').find_elements_by_tag_name('li')
 
-        thumbnailes.append(li.find_element_by_xpath(
-            '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src'))
+        for li in lis:
+            li.click()
+
+            thumbnail = driver.find_element_by_xpath(
+                '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
+            try:
+                thumbnailes.append(thumbnail[:thumbnail.find('?')])
+            except:
+                pass
+    except:
+        thumbnail = driver.find_element_by_xpath(
+            '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
+        try:
+            thumbnailes.append(thumbnail[:thumbnail.find('?')])
+        except:
+            pass
 
     print(thumbnailes)
 
@@ -66,10 +78,9 @@ if response.status_code == 200:
     detailes = []
     for container in image_containeres:
         image = container.find('img')
-        # image = str(image)
-
-        print(image['data-src'])
-        detailes.append(image['data-src'])
+        image_src = image['data-src']
+        detailes.append(image_src[:image_src.find('?')])
+    print(detailes)
 
     # 드라이버 종료
     driver.quit()
@@ -81,7 +92,7 @@ if response.status_code == 200:
     for thumbnail in thumbnailes:
         save_txt += thumbnail + '\n'
 
-    save_txt += '\n상세페이지'
+    save_txt += '\n상세페이지\n'
 
     for detail in detailes:
         save_txt += detail + '\n'
