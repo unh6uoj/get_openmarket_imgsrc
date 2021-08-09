@@ -7,10 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 import time
-
-import sys
-import os
-
 # url 입력
 url = input()
 
@@ -42,7 +38,7 @@ if response.status_code == 200:
     time.sleep(5)
 
     # 썸네일 가져오기
-    thumbnailes = []
+    thumbnails = []
     try:
         lis = driver.find_element_by_xpath(
             '//*[@id="content"]/div/div[2]/div[1]/ul').find_elements_by_tag_name('li')
@@ -53,18 +49,18 @@ if response.status_code == 200:
             thumbnail = driver.find_element_by_xpath(
                 '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
             try:
-                thumbnailes.append(thumbnail[:thumbnail.find('?')])
+                thumbnails.append(thumbnail[:thumbnail.find('?')])
             except:
                 pass
     except:
         thumbnail = driver.find_element_by_xpath(
             '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
         try:
-            thumbnailes.append(thumbnail[:thumbnail.find('?')])
+            thumbnails.append(thumbnail[:thumbnail.find('?')])
         except:
             pass
 
-    print(thumbnailes)
+    print(thumbnails)
 
     # html 소스 받기
     html = driver.page_source
@@ -75,12 +71,12 @@ if response.status_code == 200:
         class_='se-image')
 
     # img태그가 들어있는 div태그에서 img태그 추출하기
-    detailes = []
+    details = []
     for container in image_containeres:
         image = container.find('img')
         image_src = image['data-src']
-        detailes.append(image_src[:image_src.find('?')])
-    print(detailes)
+        details.append(image_src[:image_src.find('?')])
+    print(details)
 
     # 드라이버 종료
     driver.quit()
@@ -89,12 +85,12 @@ if response.status_code == 200:
     save_txt = ''
     save_txt += '썸네일\n'
 
-    for thumbnail in thumbnailes:
+    for thumbnail in thumbnails:
         save_txt += thumbnail + '\n'
 
     save_txt += '\n상세페이지\n'
 
-    for detail in detailes:
+    for detail in details:
         save_txt += detail + '\n'
 
     # 파일 저장

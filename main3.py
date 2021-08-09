@@ -69,6 +69,9 @@ mecha_product_numbers = [2916612172, 2898457985, 2885763170, 2936969302, 2885490
                          2940372210, 2940313875, 2937025297, 2916630425, 2916624012, 2916618629, 2916607344, 2907978794, 2899120178, 2898441108, 2895355508, 2895285371,
                          2885882658, 2885392305, 2885345425]
 
+new_numbers = [5185055339, 4884863379, 5658967805,
+               5658967805, 5204168783, 4871312254, 5253269252, 4890219085]
+
 # 크롬드라이버 옵션 (headless로 할 수 있게)
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
@@ -82,16 +85,16 @@ driver = webdriver.Chrome(chrome_driver_dir)
 driver.implicitly_wait(3)
 
 # csv 정의
-f = open('메카솔루션.csv', 'w', newline='')
+f = open('뉴풀템.csv', 'w', newline='')
 wr = csv.writer(f)
 
-for number in mecha_product_numbers:
-    # url = 'https://smartstore.naver.com/fulltem/products/'+str(number)
+for number in new_numbers:
+    url = 'https://smartstore.naver.com/fulltem/products/'+str(number)
     # url = 'https://smartstore.naver.com/haruclass/products/'+str(number)
     # url = 'https://smartstore.naver.com/lenaenergy/products/'+str(number)
     # url = 'https://smartstore.naver.com/sondori/products/'+str(number)
-    url = 'https://smartstore.naver.com/mechasolution_com/products/' + \
-        str(number)
+    # url = 'https://smartstore.naver.com/mechasolution_com/products/' + \
+    #     str(number)
     driver.get(url)
 
     # 썸네일 가져오기
