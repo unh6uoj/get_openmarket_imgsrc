@@ -85,12 +85,12 @@ class Image():
                 img = box.find_element_by_tag_name(
                     'img').get_attribute('outerHTML')
 
-                if img.find('"style="text-align: center; "') != -1:
+                if img.find('"text-align: center;"') != -1:
                     img = img.replace(
-                        'style="text-align: center;', 'style="text-align: center; width: 100%;"')
+                        '"text-align: center;', '"text-align: center; width: 100%;"')
                 else:
                     img = img.replace(
-                        '">', '" style="width: 100%;">')
+                        '">', '" "width: 100%;">')
 
                 print(img)
                 detail_list.append(img)
