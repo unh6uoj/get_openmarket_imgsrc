@@ -1,7 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.chrome.webdriver import WebDriver
 
 import sys
 import os
@@ -25,15 +23,13 @@ class Image():
         options.add_argument('window-size=1920x1080')
         options.add_argument('disable-gpu')
 
-        # options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        # if getattr(sys, 'frozen', False):
-        #     chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
-        #     driver = webdriver.Chrome(chromedriver_path, options=options)
-        # else:
-        #     driver = webdriver.Chrome()
-
-        chrome_driver_dir = '/Users/jeongjong-yun/Development/chromedriver'
-        driver = webdriver.Chrome(chrome_driver_dir, options=options)
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        if getattr(sys, 'frozen', False):
+            chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
+            driver = webdriver.Chrome(chromedriver_path, options=options)
+        else:
+            chrome_driver_dir = '/Users/jeongjong-yun/Development/chromedriver'
+            driver = webdriver.Chrome(chrome_driver_dir, options=options)
 
         driver.implicitly_wait(10)
 
@@ -132,6 +128,7 @@ class Image():
 
         driver.switch_to.frame('detail1')
 
+        # 상세페이지 가져오기
         detail_list = []
         detail_divs = driver.find_elements_by_class_name('ee-image')
         for div in detail_divs:
@@ -156,9 +153,9 @@ class Image():
             for li in lis:
                 li.click()
 
-                thumbnail = driver.find_element_by_xpath(
-                    '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
                 try:
+                    thumbnail = driver.find_element_by_xpath(
+                        '//*[@id="content"]/div/div[2]/div[1]/div[1]/div[1]/img').get_attribute('data-src')
                     thumb_list.append(thumbnail[:thumbnail.find('?')])
                 except:
                     pass
@@ -185,7 +182,12 @@ class Image():
         for container in image_containeres:
             image = container.find('img')
             image_src = image['data-src']
-            detail_list.append(image_src[:image_src.find('?')])
+            # image_src = image_src[:image_src.find('?')]
+
+            detail_list.append('<img alt="" src="'+image_src+'">')
+
+        # for container in image_containeres:
+        #     detail_list.append(str(container.find('img')))
         print(detail_list)
 
         self.save('네이버: ', thumb_list, detail_list)
@@ -193,5 +195,6 @@ class Image():
 
 if __name__ == '__main__':
     image = Image()
+
     url = input()
     image.start(url)
