@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import requests
 from selenium import webdriver
 
 import sys
@@ -14,8 +15,12 @@ class Image():
             self.eleven(url)
         elif url.find('gmarket.co.kr') != -1:
             self.gmarket(url)
-        else:
+        elif url.find('drion.co.kr') != -1:
+            self.drion(url)
+        elif url.find('naver.com') != -1:
             self.naver(url)
+        else:
+            print('url_error')
 
     def get_driver(self, url):
         options = webdriver.ChromeOptions()
@@ -24,12 +29,14 @@ class Image():
         options.add_argument('disable-gpu')
 
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        if getattr(sys, 'frozen', False):
-            chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
-            driver = webdriver.Chrome(chromedriver_path, options=options)
-        else:
-            chrome_driver_dir = '/Users/jeongjong-yun/Development/chromedriver'
-            driver = webdriver.Chrome(chrome_driver_dir, options=options)
+        # if getattr(sys, 'frozen', False):
+        #     chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
+        #     driver = webdriver.Chrome(chromedriver_path, options=options)
+        # else:
+        #     chrome_driver_dir = '/Users/jeongjong-yun/Development/chromedriver'
+        #     driver = webdriver.Chrome(chrome_driver_dir, options=options)
+
+        driver = webdriver.Safari()
 
         driver.implicitly_wait(10)
 
@@ -191,6 +198,14 @@ class Image():
         print(detail_list)
 
         self.save('네이버: ', thumb_list, detail_list)
+
+    def drion(self, url):
+        req = requests.get(url)
+        html = req.text
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+
 
 
 if __name__ == '__main__':
