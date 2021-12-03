@@ -1,9 +1,4 @@
-from bs4 import BeautifulSoup
-import bs4
-import requests
-from selenium import webdriver
 
-import json
 
 
 # class Image():
@@ -206,6 +201,9 @@ import json
 #         soup = BeautifulSoup(html, 'html.parser')
 
 
+from bs4 import BeautifulSoup
+import requests
+import json
 
 
 if __name__ == '__main__':
@@ -219,7 +217,7 @@ if __name__ == '__main__':
     r_text = ''
     for img in main_contents.find_all('img'):
         if img.attrs['class'][0] == 'se-image-resource':
-            r_text += img.attrs['data-src'] + '\n'
+            r_text += f'<img src="{img.attrs["data-src"]}" />' + '\n'
 
     f = open(url.split('/')[5]+'.txt', 'w')
     f.write(r_text)
