@@ -208,7 +208,7 @@ import json
 
 if __name__ == '__main__':
     url = input()
-    code = url.split('/')[5]
+    code = url.split('/')[5].split('?')[0]
 
     response = requests.get(f'https://smartstore.naver.com/i/v1/products/{code}/contents/-1/PC')
     soup = BeautifulSoup(str(json.loads(response.text)['renderContent']), 'html.parser')
