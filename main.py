@@ -212,15 +212,18 @@ if __name__ == '__main__':
 
     response = requests.get(f'https://smartstore.naver.com/i/v1/products/{code}/contents/-1/PC')
     soup = BeautifulSoup(str(json.loads(response.text)['renderContent']), 'html.parser')
-    main_contents = soup.find(class_='se-main-container')
+    try:
+        main_contents = soup.find(class_='se-main-container')
 
-    r_text = ''
-    for img in main_contents.find_all('img'):
-        if img.attrs['class'][0] == 'se-image-resource':
-            r_text += f'<img src="{img.attrs["data-src"]}" />' + '\n'
+        r_text = ''
+        for img in main_contents.find_all('img'):
+            if img.attrs['class'][0] == 'se-image-resource':
+                r_text += f'<img src="{img.attrs["data-src"]}" />' + '\n'
+            elif img.attrs['class'][0] == 'se-inline-image-resource':
+                r_text += f'<img src="{img.attrs["data-src"]}" />' + '\n'
+    except:
+        pass
 
     f = open(url.split('/')[5]+'.txt', 'w')
     f.write(r_text)
     f.close()
-
-    
