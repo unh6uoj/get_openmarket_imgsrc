@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import json
+import json, os, re
 
 
 def get_thumbnail(url):
@@ -15,9 +15,9 @@ def get_thumbnail(url):
     try:
         for thumbnail in thumbnails:
             r_text += thumbnail.attrs["src"].replace("f40", "m510") + "\n"
-    except:
-        pass
-
+    except Exception as e:
+        print(e)
+    
     return r_text
 
 
@@ -44,11 +44,15 @@ def get_detail(url):
 
 def get_detail_v2(url):
     code = url.split("/")[5].split("?")[0]
-    merchant_code, etc_code = get_etc_no(url)
+    
+    try:
+        merchant_code, etc_code = get_etc_no(url)
 
-    r = requests.get(
-        f"https://smartstore.naver.com/i/v1/products/{code}/contents/{merchant_code}/PC"
-    )
+        r = requests.get(
+            f"https://smartstore.naver.com/i/v1/products/{code}/contents/{merchant_code}/PC"
+        )
+    except:
+        return "상품 데이터 수집 중 오류 발생"
 
     soup = BeautifulSoup(str(r.json()["renderContent"]), "html.parser")
 
@@ -84,35 +88,52 @@ def get_etc_no(url):
     return script_json['product']['A']['channel']['naverPaySellerNo'], script_json['product']['A']['productNo']
 
 def get_products_by_all_product_url(all_product_url):   # 스마트 스토어 전체상품 url 입력 시 전체 상품 가져옴
-    # all_product_url = all_product_url.replace("size=40", "size=80")
-    all_product_url += "&size=80"
-    response = requests.get(all_product_url)
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-
-    products = soup.find_all(class_='-qHwcFXhj0')
-
     results = []
-    for product in products:
-        results.append({
-            "title": product.find('strong').text,
-            "url": f"https://smartstore.naver.com{product.find('a').attrs['href']}"
-        })
+    
+    page = 1
+    while True:
+        response = requests.get(
+            all_product_url.split("?")[0],
+            params={
+                "st": "POPULAR",
+                "free": "false",
+                "dt": "IMAGE",
+                "page": page,
+                "size": 80
+            }
+        )
+        html = response.text
+        soup = BeautifulSoup(html, 'html.parser')
+
+        products = soup.find_all(class_='-qHwcFXhj0')
+
+        for product in products:
+            print(product)
+            results.append({
+                "title": product.find('strong').text,
+                "url": f"https://smartstore.naver.com{product.find('a').attrs['href']}"
+            })
+
+        page += 1
+        
+        if len(products) != 80:
+            break
+
+    print(f"총 {len(results)}개의 상품")
 
     return results
 
 if __name__ == "__main__":
-    print("썸네일만 가져오려면 1, 상세페이지만 가져오려면 2, 모두 가져오려면 3을 입력 해주세요")
+    print("썸네일만 가져오려면 1\n상세페이지만 가져오려면 2\n모두 가져오려면 3을 입력 해주세요.")
     mode = input()
 
-    
-
-    print("단일 상품을 가져오시려면 1번, 전체 상품 목록에서 가져오시려면 2번을 눌러주세요")
+    print("단일 상품을 가져오시려면 1\n전체 상품 목록에서 가져오시려면 2를 눌러주세요.")
     is_all = input()
 
-    print("url을 입력해주세요")
+    print("url을 입력해주세요.")
+    url = input()
+
     if is_all == "1":
-        url = input()
         url = url.split("?")[0]
 
         r_text = ""
@@ -134,12 +155,20 @@ if __name__ == "__main__":
         f.close()
 
     elif is_all == "2":
-        url = input()
-
         products = get_products_by_all_product_url(url)
+        brand = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "", url.split("/")[3])
+
+        # 디렉토리 유무 체크 후 없으면 생성
+        if os.path.isdir(brand):
+            pass
+        else:
+            os.makedirs(brand)
         
         for product in products:
-            f = open(f"{product['title']}.txt", 'w')
+            title = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "",  product["title"])
+
+            f = open(f"{brand}/{title}.txt", 'w')
+
             r_text = ""
             if get_detail(url):
                 r_text = get_thumbnail(product["url"]) + "\n" + get_detail(product["url"])
