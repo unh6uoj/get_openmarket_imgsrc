@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import json, os, re
 
+from ohou import Ohou
+
 
 def get_thumbnail(url):
     r = requests.get(url)
@@ -124,56 +126,72 @@ def get_products_by_all_product_url(all_product_url):   # 스마트 스토어 �
     return results
 
 if __name__ == "__main__":
-    print("썸네일만 가져오려면 1\n상세페이지만 가져오려면 2\n모두 가져오려면 3을 입력 해주세요.")
-    mode = input()
+    print("네이버는 1\n오늘의집은 2")
+    store = input()
 
-    print("단일 상품을 가져오시려면 1\n전체 상품 목록에서 가져오시려면 2를 눌러주세요.")
-    is_all = input()
+    if store == "1":
+        print("썸네일만 가져오려면 1\n상세페이지만 가져오려면 2\n모두 가져오려면 3을 입력 해주세요.")
+        mode = input()
 
-    print("url을 입력해주세요.")
-    url = input()
-
-    if is_all == "1":
-        url = url.split("?")[0]
-
-        r_text = ""
-        if mode == "1":
-            r_text = get_thumbnail(url)
-        elif mode == "2":
-            if get_detail(url):
-                r_text = get_detail(url)
-            else:
-                r_text = get_detail_v2(url)
-        elif mode == "3":
-            if get_detail(url):
-                r_text = get_thumbnail(url) + "\n" + get_detail(url)
-            else:
-                r_text = get_thumbnail(url) + "\n" + get_detail_v2(url)
-
-        f = open(url.split("/")[5].split("?")[0] + ".txt", "w")
-        f.write(r_text)
-        f.close()
-
-    elif is_all == "2":
-        products = get_products_by_all_product_url(url)
-        brand = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "", url.split("/")[3])
-
-        # 디렉토리 유무 체크 후 없으면 생성
-        if os.path.isdir(brand):
-            pass
-        else:
-            os.makedirs(brand)
+        print("단일 상품을 가져오시려면 1\n전체 상품 목록에서 가져오시려면 2를 눌러주세요.")
+        is_all = input()
         
-        for product in products:
-            title = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "",  product["title"])
+        print("url을 입력해주세요.")
+        url = input()
 
-            f = open(f"{brand}/{title}.txt", 'w')
+        if is_all == "1":
+            url = url.split("?")[0]
 
             r_text = ""
-            if get_detail(url):
-                r_text = get_thumbnail(product["url"]) + "\n" + get_detail(product["url"])
-            else:
-                r_text = get_thumbnail(product["url"]) + "\n" + get_detail_v2(product["url"])
-            
+            if mode == "1":
+                r_text = get_thumbnail(url)
+            elif mode == "2":
+                if get_detail(url):
+                    r_text = get_detail(url)
+                else:
+                    r_text = get_detail_v2(url)
+            elif mode == "3":
+                if get_detail(url):
+                    r_text = get_thumbnail(url) + "\n" + get_detail(url)
+                else:
+                    r_text = get_thumbnail(url) + "\n" + get_detail_v2(url)
+
+            f = open(url.split("/")[5].split("?")[0] + ".txt", "w")
             f.write(r_text)
             f.close()
+
+        elif is_all == "2":
+            products = get_products_by_all_product_url(url)
+            brand = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "", url.split("/")[3])
+
+            # 디렉토리 유무 체크 후 없으면 생성
+            if os.path.isdir(brand):
+                pass
+            else:
+                os.makedirs(brand)
+            
+            for product in products:
+                title = re.sub("[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\"…》\”\“\’·]", "",  product["title"])
+
+                f = open(f"{brand}/{title}.txt", 'w')
+
+                r_text = ""
+                if get_detail(url):
+                    r_text = get_thumbnail(product["url"]) + "\n" + get_detail(product["url"])
+                else:
+                    r_text = get_thumbnail(product["url"]) + "\n" + get_detail_v2(product["url"])
+                
+                f.write(r_text)
+                f.close()
+    elif store == "2":
+        ohou = Ohou()
+
+        print("url을 입력하세요")
+        url = input()
+        product_code = url.split("/")[4]
+
+        detail_text = ohou.get_detail_html(url)
+
+        f = open(f"{product_code}.txt", 'w')
+        f.write(detail_text)
+        f.close()
