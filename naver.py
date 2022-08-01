@@ -1,4 +1,5 @@
 import json
+from re import T
 import requests
 
 from bs4 import BeautifulSoup
@@ -23,6 +24,8 @@ class Naver(Crawler):
             detail_html = self.get_detail_html()
             if not detail_html:
                 detail_html = self.get_detail_v2_html()
+            
+            print(detail_html)
 
             return self.get_product_code(), self.get_thumbnail_html() + detail_html
 
@@ -40,13 +43,15 @@ class Naver(Crawler):
             thumbnails = soup.find(class_="_23RpOU6xpc").find_all("img")
 
         r_text = "썸네일\n"
-        try:
-            for thumbnail in thumbnails:
-                # r_text += thumbnail.attrs["src"].replace("f40", "m510") + "\n"
-                r_text += thumbnail
-        except Exception as e:
-            print(e)
+        for thumbnail in thumbnails:
+            del thumbnail["class"]
+            del thumbnail["data-src"]
+            del thumbnail["data-srcset"]
+            del thumbnail["style"]
+
+            r_text += str(thumbnail)
         
+        print(r_text)
         return r_text
 
     def get_detail_html(self):

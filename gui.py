@@ -8,6 +8,9 @@ class GUI:
         self.root.geometry(f"{width}x{height}")
         self.root.resizable(resizable, resizable)
 
+        self.mode_var = tkinter.IntVar()
+        self.is_img_var = tkinter.IntVar()
+
     def add_store_combobox(self, stores):
         store_label = tkinter.Label(self.root, text="스토어를 선택 해주세요", width=30, height=2)
         store_label.pack()
@@ -30,8 +33,6 @@ class GUI:
         mode_container = tkinter.Label(self.root)
         mode_container.pack()
 
-        self.mode_var = tkinter.IntVar()
-
         thumbnail_radio = tkinter.Radiobutton(mode_container, text="썸네일", value=0, variable=self.mode_var)
         thumbnail_radio.select()
         thumbnail_radio.pack(side="left")
@@ -46,8 +47,6 @@ class GUI:
 
         is_img_container = tkinter.Label(self.root)
         is_img_container.pack()
-
-        self.is_img_var = tkinter.IntVar()
 
         thumbnail_radio = tkinter.Radiobutton(is_img_container, text="HTML", value=0, variable=self.is_img_var)
         thumbnail_radio.select()
